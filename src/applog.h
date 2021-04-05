@@ -9,6 +9,9 @@
 // This is a thread-safe logging library. The non-thread-safe functions are applog_startup()
 // and applog_shutdown().
 
+
+#define APPLOG(...)  applog_log (__FILE__, __LINE__, __VA_ARGS__)
+
 #ifdef __cplusplus
 extern "C" {
 #endif

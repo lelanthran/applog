@@ -36,8 +36,8 @@ extern "C" {
    // is actually used.
    const char *applog_dirname (void);
 
-   void applog_log (const char *source, size_t line, ...);
-   void applog_vlog (const char *source, size_t line, va_list ap);
+   void applog_log (const char *source, size_t line, const char *fmts, ...);
+   void applog_vlog (const char *source, size_t line, const char *fmts, va_list ap);
 
 
 #ifdef __cplusplus

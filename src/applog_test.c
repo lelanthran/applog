@@ -20,7 +20,7 @@ int main (void)
                break;
    }
 
-   APPLOG ("Testing\n");
+   APPLOG ("Testing, logfile path is [%s]\n", applog_dirname);
 
    ret = EXIT_SUCCESS;
 

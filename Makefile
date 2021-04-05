@@ -100,6 +100,15 @@ endif
 
 
 # ######################################################################
+# Special processing to determine if we build with or without pthreads
+ifeq (,$(WITHOUT_THREAD_SAFETY))
+EXTRA_LIB_LDFLAGS+=-lpthread
+EXTRA_PROG_LDFLAGS+=-lpthread
+else
+EXTRA_COMPILER_FLAGS+=-DWITHOUT_THREAD_SAFETY=1
+endif
+
+# ######################################################################
 # Set the output directories, output filenames
 
 OUTDIR=debug

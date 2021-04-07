@@ -28,7 +28,7 @@ extern "C" {
    //    0     Success.
    //    1     Could not use provided path, successfully used builtin defaults.
    //    -1    Fatal error, no logging path is sed and no logfile is available.
-   int applog_startup (const char *dirpath);
+   int applog_startup (const char *dirpath, const char *fname_prefix);
    void applog_shutdown (void);
 
    // Retrieve the pathname of the directory that contains the logfiles. The returned path

@@ -10,7 +10,8 @@ int main (void)
 
    printf ("Starting applog tests (%s)\n", applog_version);
 
-   int rc = applog_startup (NULL); // TODO: Must also test with valid and invalid paths
+   // TODO: Must also test with valid and invalid paths
+   int rc = applog_startup (NULL, "MyTestApp");
 
    switch (rc) {
       case 0:  printf ("Initialised the applog library\n");  break;
@@ -20,11 +21,13 @@ int main (void)
                break;
    }
 
-   APPLOG ("Testing, logfile path is [%s]\n", applog_dirname);
+   sleep (1);
+   APPLOG ("Testing, logfile path is [%s]\n", applog_dirname ());
 
    ret = EXIT_SUCCESS;
 
 errorexit:
+   applog_shutdown ();
    return ret;
 }
 

@@ -102,19 +102,40 @@ static bool rename_all_files (void)
       NULL, NULL, NULL, NULL, NULL,
       NULL, NULL, NULL, NULL, NULL,
    };
+   char num[4];
+   char *newpath = NULL;
 
    size_t nfnames = sizeof fnames / sizeof fnames[0];
 
    for (size_t i=0; i<nfnames; i++) {
-      char num[4];
       snprintf (num, sizeof num, "%zu", i);
-      if (!(fnames[i] = lstrcat
+      if (!(fnames[i] = lstrcat (g_dirname, "/", g_fname_prefix, ".", num, NULL)))  {
+         goto errorexit;
+      }
    }
 
+   // Not checking for errors here, as we expect a certain class of error anyway.
+   for (int i=(nfnames - 2); i>=0; i--) {
+      snprintf (num, sizeof num, "%i", i+1);
+      free (newpath);
+      newpath = lstrcat (g_dirname, "/", g_fname_prefix, ".", num, NULL);
+      if (!newpath)
+         goto errorexit;
+
+      printf ("Renaming [%s] -> [%s]\n", fnames[i], newpath);
+      rename (fnames[i], newpath);
+   }
+
+   free (newpath);
+   newpath = lstrcat (g_dirname, "/", g_fname_prefix, NULL);
+
+   printf ("Renaming [%s] -> [%s]\n", newpath, fnames[0]);
+   rename (newpath, fnames[0]);
 
    error = false;
 
 errorexit:
+   free (newpath);
    for (size_t i=0; i<nfnames; i++) {
       free (fnames[i]);
    }
@@ -133,7 +154,7 @@ int applog_startup (const char *dirpath, const char *fname_prefix)
       fname_prefix = DEFAULT_PREFIX;
 
    /* *************************************************************
-    *  1. Init g_lock, g_start_time, g_fname_pefix
+    *  1. Init g_lock, g_start_time, g_fname_prefix
     */
 #ifndef WITHOUT_THREAD_SAFETY
    pthread_mutexattr_t attrs;
@@ -234,6 +255,15 @@ int applog_startup (const char *dirpath, const char *fname_prefix)
    /* *************************************************************
     *  5. Write the start event log entry
     */
+   char hrtime[30];
+   memset (hrtime, 0, sizeof hrtime);
+   const char *sztime = ctime ((const time_t *)&g_start_time);
+   if (sztime) {
+      strncpy (hrtime, sztime, sizeof hrtime - 1);
+   }
+   if ((strchr (hrtime, '\n'))) {
+      (strchr (hrtime, '\n'))[0] = 0;
+   }
    APPLOG ("%" PRIu64 ":Started applog (%s, %s)\n", g_start_time, dirpath, fname_prefix);
 
    return ret;

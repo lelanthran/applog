@@ -20,6 +20,7 @@
 static FILE *g_outfile = NULL;
 static uint64_t g_start_time = 0;
 char *g_dirname = NULL;
+char *g_fname_prefix = NULL;
 
 #ifndef WITHOUT_THREAD_SAFETY
 static pthread_mutex_t g_lock;
@@ -96,8 +97,28 @@ static const char *get_currentdir (void)
 
 static bool rename_all_files (void)
 {
-   // TODO: Implement this function.
-   return true;
+   bool error = true;
+   char *fnames[10] = {
+      NULL, NULL, NULL, NULL, NULL,
+      NULL, NULL, NULL, NULL, NULL,
+   };
+
+   size_t nfnames = sizeof fnames / sizeof fnames[0];
+
+   for (size_t i=0; i<nfnames; i++) {
+      char num[4];
+      snprintf (num, sizeof num, "%zu", i);
+      if (!(fnames[i] = lstrcat
+   }
+
+
+   error = false;
+
+errorexit:
+   for (size_t i=0; i<nfnames; i++) {
+      free (fnames[i]);
+   }
+   return !error;
 }
 
 /* *********************************************************************** */
@@ -112,7 +133,7 @@ int applog_startup (const char *dirpath, const char *fname_prefix)
       fname_prefix = DEFAULT_PREFIX;
 
    /* *************************************************************
-    *  1. Init g_lock, g_start_time
+    *  1. Init g_lock, g_start_time, g_fname_pefix
     */
 #ifndef WITHOUT_THREAD_SAFETY
    pthread_mutexattr_t attrs;
@@ -123,6 +144,10 @@ int applog_startup (const char *dirpath, const char *fname_prefix)
 #endif
 
    g_start_time = (uint64_t) time (NULL);
+
+   if (!(g_fname_prefix = lstrcat (fname_prefix, NULL))) {
+      return -1;
+   }
 
    /* *************************************************************
     *  2. Determine the directory pathname and init g_dirname
@@ -222,6 +247,7 @@ void applog_shutdown (void)
    }
 
    free (g_dirname);
+   free (g_fname_prefix);
 
 #ifndef WITHOUT_THREAD_SAFETY
    pthread_mutex_destroy (&g_lock);
@@ -246,9 +272,13 @@ void applog_log (const char *source, size_t line, const char *fmts, ...)
 void applog_vlog (const char *source, size_t line, const char *fmts, va_list ap)
 {
    uint64_t now = (uint64_t) time (NULL);
+#ifndef WITHOUT_THREAD_SAFETY
    pthread_mutex_lock (&g_lock);
+#endif
    fprintf (g_outfile, "+%" PRIu64 ":%s:%zu:", now - g_start_time, source, line);
    vfprintf (g_outfile, fmts, ap);
+#ifndef WITHOUT_THREAD_SAFETY
    pthread_mutex_unlock (&g_lock);
+#endif
 }
 

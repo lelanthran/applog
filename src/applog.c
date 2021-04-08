@@ -122,14 +122,14 @@ static bool rename_all_files (void)
       if (!newpath)
          goto errorexit;
 
-      printf ("Renaming [%s] -> [%s]\n", fnames[i], newpath);
+      // printf ("Renaming [%s] -> [%s]\n", fnames[i], newpath);
       rename (fnames[i], newpath);
    }
 
    free (newpath);
    newpath = lstrcat (g_dirname, "/", g_fname_prefix, NULL);
 
-   printf ("Renaming [%s] -> [%s]\n", newpath, fnames[0]);
+   // printf ("Renaming [%s] -> [%s]\n", newpath, fnames[0]);
    rename (newpath, fnames[0]);
 
    error = false;
@@ -208,7 +208,7 @@ int applog_startup (const char *dirpath, const char *fname_prefix)
             return -1;
          strcpy (tmp, paths[i]);
          g_dirname = tmp;
-         printf ("%zu: Using [%s] in [%s]\n", i, path_tmpfile, g_dirname);
+         // printf ("%zu: Using [%s] in [%s]\n", i, path_tmpfile, g_dirname);
          break;
       }
 
